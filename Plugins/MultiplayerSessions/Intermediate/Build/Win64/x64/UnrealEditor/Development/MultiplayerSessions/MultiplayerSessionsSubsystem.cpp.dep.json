@@ -1,0 +1,25 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\unreal\\projects\\t_cppmultiplayershooter\\blaster\\plugins\\multiplayersessions\\source\\multiplayersessions\\private\\multiplayersessionssubsystem.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\unreal\\projects\\t_cppmultiplayershooter\\blaster\\intermediate\\build\\win64\\x64\\blastereditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\unreal\\projects\\t_cppmultiplayershooter\\blaster\\plugins\\multiplayersessions\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\multiplayersessions\\definitions.multiplayersessions.h",
+            "c:\\unreal\\projects\\t_cppmultiplayershooter\\blaster\\plugins\\multiplayersessions\\source\\multiplayersessions\\public\\multiplayersessionssubsystem.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\interfaces\\onlinesessioninterface.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemtypes.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemnames.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinedelegatemacros.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\interfaces\\onlinesessiondelegates.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinekeyvaluepair.h",
+            "c:\\unreal\\projects\\t_cppmultiplayershooter\\blaster\\plugins\\multiplayersessions\\intermediate\\build\\win64\\unrealeditor\\inc\\multiplayersessions\\uht\\multiplayersessionssubsystem.generated.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystem.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesubsystemmodule.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinesubsystem\\source\\public\\onlinesessionsettings.h",
+            "c:\\unreal\\engines\\ue_5.6\\engine\\plugins\\online\\onlinebase\\source\\public\\online\\onlinesessionnames.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
