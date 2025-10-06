@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "InputAction.h"
+#include "Blaster/BlasterComponents/CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
@@ -15,7 +16,6 @@
 #include "Blaster/Weapon/Weapon.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
-#include "Chaos/AABBTree.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -38,15 +38,22 @@ ABlasterCharacter::ABlasterCharacter()
 	OverheadWidget->SetupAttachment(RootComponent);
 
 	CursorSpeed = 2; // Should be a menu setting, 2 is good for the default speed here imho
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true); // Components don't need to be registered in GetLifeTimeReplicatedProps
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	// Components don't need to be registered in GetLifeTimeReplicatedProps
+	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	// Register stuff that needs to be replicated
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
+
+
 
 void ABlasterCharacter::BeginPlay()
 {
@@ -80,24 +87,39 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	if (UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		// Bind Move
+		// Bind actions to callback functions here
 		if (MoveAction)
 		{
 			EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Move);
 		}
 
-		// Bind Look
 		if (LookAction)
 		{
 			EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ABlasterCharacter::Look);
 		}
 
-		// Bind Jump
 		if (JumpAction)
 		{
 			EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ABlasterCharacter::Jump);
 			EnhancedInput->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABlasterCharacter::StopJumping);
 		}
+
+		if (EquipAction)
+		{
+			EnhancedInput->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::Equip);
+		}
+	}
+}
+
+void ABlasterCharacter::PostInitializeComponents()
+{
+	// This will make sure the components are "loaded in" so we have access to them (if permitted, like the CombatComponent here because it's a 'friend' class)
+
+	Super::PostInitializeComponents();
+
+	if (Combat)
+	{
+		Combat->Character = this; // This is the 'earliest' point where we can set the character variable in the Combat component
 	}
 }
 
@@ -135,6 +157,14 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 	else
 	{
 		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.Look()."));
+	}
+}
+
+void ABlasterCharacter::Equip(const FInputActionValue& Value)
+{
+	if (Combat && HasAuthority()) // By checking HasAuthority, only the server will call the EquipWeapon function
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
 	}
 }
 
