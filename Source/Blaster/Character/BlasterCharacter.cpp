@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "InputAction.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
 
@@ -23,6 +24,10 @@ ABlasterCharacter::ABlasterCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->SetWalkableFloorAngle(46.f);
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -30,7 +35,7 @@ void ABlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	// Debug message
-	BlasterHelperDebug::Print(TEXT("Working")); // This comes from the namespace BlasterHelperDebug in BlasterHelperDebug.h
+	//BlasterHelperDebug::Print(TEXT("Session started, godspeed!")); // This comes from the namespace BlasterHelperDebug in BlasterHelperDebug.h
 
 	// Initialize controller
 	PC = Cast<APlayerController>(Controller);
@@ -45,7 +50,7 @@ void ABlasterCharacter::BeginPlay()
 		}
 	} else
 	{
-		
+		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.BeginPlay()."));
 	}
 	
 	
@@ -87,7 +92,7 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (PC != nullptr)
 	{
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 
@@ -99,16 +104,24 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
+	else
+	{
+		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.Move()."));
+	}
 }
 
 void ABlasterCharacter::Look(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (PC != nullptr)
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+	else
+	{
+		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.Look()."));
 	}
 }
 
