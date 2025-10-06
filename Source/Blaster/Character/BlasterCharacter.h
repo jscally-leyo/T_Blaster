@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "BlasterCharacter.generated.h"
 
+class UWidgetComponent;
 struct FInputActionValue;
 class USpringArmComponent;
 class UCameraComponent;
@@ -50,6 +51,8 @@ private:
 	UCameraComponent* FollowCamera;
 	UPROPERTY()
 	APlayerController* PC;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* OverheadWidget;
 	
 public:
 

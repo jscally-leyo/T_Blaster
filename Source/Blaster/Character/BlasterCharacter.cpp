@@ -9,8 +9,10 @@
 #include "InputMappingContext.h"
 #include "InputAction.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
+#include "Components/WidgetComponent.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -28,6 +30,9 @@ ABlasterCharacter::ABlasterCharacter()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->SetWalkableFloorAngle(46.f);
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -50,10 +55,8 @@ void ABlasterCharacter::BeginPlay()
 		}
 	} else
 	{
-		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.BeginPlay()."));
+		//BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.BeginPlay()."));
 	}
-	
-	
 }
 
 void ABlasterCharacter::Tick(float DeltaTime)
