@@ -10,9 +10,12 @@
 #include "InputAction.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
+#include "Blaster/Weapon/Weapon.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
-#include "Components/WidgetComponent.h"
+#include "Chaos/AABBTree.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -33,6 +36,16 @@ ABlasterCharacter::ABlasterCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	CursorSpeed = 2; // Should be a menu setting, 2 is good for the default speed here imho
+}
+
+void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Register stuff that needs to be replicated
+	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -53,9 +66,6 @@ void ABlasterCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
-	} else
-	{
-		//BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.BeginPlay()."));
 	}
 }
 
@@ -119,12 +129,47 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 
 	if (PC != nullptr)
 	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		AddControllerYawInput(LookAxisVector.X * CursorSpeed);
+		AddControllerPitchInput(LookAxisVector.Y * CursorSpeed);
 	}
 	else
 	{
 		BlasterHelperDebug::Print(TEXT("Player Controller not valid in BlasterCharacter.Look()."));
 	}
 }
+
+void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+{
+	// This is for the server scenario, since RepNotify functions are not called on the server
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	
+	OverlappingWeapon = Weapon;
+	
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
+}
+
+void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	// This is for the client scenario, since RepNotify functions are only called on clients
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
+
+
 
