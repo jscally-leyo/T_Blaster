@@ -24,9 +24,10 @@ public:
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	//!! built-in movement component is auto-replicated,
-	//!! so moving, jumping, crouching and all variables (walk speed, crouch half height, ...) in the component will be automatically visible on all machines
+
+	//!! The end goal is to add as little as possible to the already replicated stuff, to minimize network traffic
+	//!! For example, built-in movement component is auto-replicated
+	//!! So moving, jumping, crouching and all variables (walk speed, crouch half height, ...) in the component will be automatically visible on all machines
 	
 	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -54,12 +55,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> CrouchAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> AimAction;
 	
 	// Input Functions
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EquipButtonPressed(const FInputActionValue& Value);
 	void CrouchButtonPressed(const FInputActionValue& Value);
+	void AimButtonPressed(const FInputActionValue& Value);
+	void AimButtonReleased(const FInputActionValue& Value);
 
 	// Input variables
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -97,4 +103,5 @@ private:
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
+	bool IsAiming();
 };

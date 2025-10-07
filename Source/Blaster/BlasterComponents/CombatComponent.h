@@ -21,16 +21,27 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	void EquipWeapon(AWeapon* WeaponToEquip);
 	
 protected:
 	virtual void BeginPlay() override;
+	void SetAiming(bool bIsAiming);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerSetAiming(bool bIsAiming);
+
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
 
 private:
 	ABlasterCharacter* Character;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(Replicated)
+	bool bAiming;
 
 public:
 	

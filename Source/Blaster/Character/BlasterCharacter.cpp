@@ -113,6 +113,12 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		{
 			EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &ABlasterCharacter::CrouchButtonPressed);
 		}
+
+		if (AimAction)
+		{
+			EnhancedInput->BindAction(AimAction, ETriggerEvent::Started, this, &ABlasterCharacter::AimButtonPressed);
+			EnhancedInput->BindAction(AimAction, ETriggerEvent::Completed, this, &ABlasterCharacter::AimButtonReleased);
+		}
 	}
 }
 
@@ -202,6 +208,22 @@ void ABlasterCharacter::CrouchButtonPressed(const FInputActionValue& Value)
 	 }
 }
 
+void ABlasterCharacter::AimButtonPressed(const FInputActionValue& Value)
+{
+	if (Combat)
+	{
+		Combat->SetAiming(true); // We can access this private stuff from the Combat component because BlasterCharacter is a friend class
+	}
+}
+
+void ABlasterCharacter::AimButtonReleased(const FInputActionValue& Value)
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false); // We can access this private stuff from the Combat component because BlasterCharacter is a friend class
+	}
+}
+
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	// This is for the server scenario, since RepNotify functions are not called on the server
@@ -237,7 +259,12 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 
 bool ABlasterCharacter::IsWeaponEquipped()
 {
-	return (Combat && Combat->EquippedWeapon);
+	return (Combat && Combat->EquippedWeapon); // We can access this private stuff from the Combat component because BlasterCharacter is a friend class
+}
+
+bool ABlasterCharacter::IsAiming()
+{
+	return (Combat && Combat->bAiming); // We can access this private stuff from the Combat component because BlasterCharacter is a friend class
 }
 
 
