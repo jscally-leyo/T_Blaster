@@ -41,6 +41,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true); // Components don't need to be registered in GetLifeTimeReplicatedProps
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -52,8 +54,6 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
-
-
 
 void ABlasterCharacter::BeginPlay()
 {
@@ -107,6 +107,11 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		if (EquipAction)
 		{
 			EnhancedInput->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::EquipButtonPressed);
+		}
+		
+		if (CrouchAction)
+		{
+			EnhancedInput->BindAction(CrouchAction, ETriggerEvent::Started, this, &ABlasterCharacter::CrouchButtonPressed);
 		}
 	}
 }
@@ -185,6 +190,18 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
+void ABlasterCharacter::CrouchButtonPressed(const FInputActionValue& Value)
+{
+	 if(bIsCrouched)
+	 {
+		 UnCrouch();
+	 }
+	 else
+	 {
+	 	Crouch();
+	 }
+}
+
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
 	// This is for the server scenario, since RepNotify functions are not called on the server
@@ -217,6 +234,12 @@ void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 		LastWeapon->ShowPickupWidget(false);
 	}
 }
+
+bool ABlasterCharacter::IsWeaponEquipped()
+{
+	return (Combat && Combat->EquippedWeapon);
+}
+
 
 
 

@@ -6,6 +6,7 @@
 #include "Blaster/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -20,6 +21,14 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
+	// Adding it here means that when it changes, the change will be reflected to all clients
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
