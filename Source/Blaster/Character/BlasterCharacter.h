@@ -24,6 +24,7 @@ public:
 	ABlasterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	
@@ -50,7 +51,7 @@ protected:
 	// Input Functions
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Equip(const FInputActionValue& Value);
+	void EquipButtonPressed(const FInputActionValue& Value);
 
 	// Input variables
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -69,7 +70,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UWidgetComponent* OverheadWidget;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon) // See next function
 	AWeapon* OverlappingWeapon;
 
 	UFUNCTION()
@@ -77,6 +78,14 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly)
 	UCombatComponent* Combat;
+	
+	// RPC functions are one-way calls, called on the client to 'request' something from the server, or vice versa
+	// For example: only server has authority so only server should decide if a character can pick up a weapon (this is also to prevent cheating!!)
+	//              The server scenario for equipping is covered with the 'EquipButtonPressed' function, but for the client scenario...
+	//              we need an RPC function that 'requests the equipping of the weapon for that client'
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
+
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);

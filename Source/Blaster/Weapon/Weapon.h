@@ -26,7 +26,10 @@ class BLASTER_API AWeapon : public AActor
 public:
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	// IMPORTANT so that we can decide what has to be replicated
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
+	void SetWeaponState(EWeaponState State);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -54,15 +57,18 @@ private:
 	USkeletalMeshComponent* WeaponMesh;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	USphereComponent* AreaSphere;
+	USphereComponent* AreaSphere; // Overlap events are only generated on the server (always? or just here because we did something that defines this, which I forgot?)
 	
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties") // See next function
 	EWeaponState WeaponState;
+
+	UFUNCTION()
+	void OnRep_WeaponState();
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	UWidgetComponent* PickupWidget;
-	
-	
+
 public:
-	FORCEINLINE void SetWeaponState(EWeaponState State){WeaponState = State;}
+	FORCEINLINE USphereComponent* GetAreaSphere() const {return AreaSphere;}
 };
+

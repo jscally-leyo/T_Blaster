@@ -49,7 +49,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Register stuff that needs to be replicated
+	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
@@ -106,7 +106,7 @@ void ABlasterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		if (EquipAction)
 		{
-			EnhancedInput->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::Equip);
+			EnhancedInput->BindAction(EquipAction, ETriggerEvent::Started, this, &ABlasterCharacter::EquipButtonPressed);
 		}
 	}
 }
@@ -160,9 +160,26 @@ void ABlasterCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ABlasterCharacter::Equip(const FInputActionValue& Value)
+void ABlasterCharacter::EquipButtonPressed(const FInputActionValue& Value)
 {
-	if (Combat && HasAuthority()) // By checking HasAuthority, only the server will call the EquipWeapon function
+	if (Combat) 
+	{
+		if (HasAuthority())
+		{
+			// This is the authority version where a server wants to equip
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			// This is the RPC version where a client wants to equip
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
 	{
 		Combat->EquipWeapon(OverlappingWeapon);
 	}
