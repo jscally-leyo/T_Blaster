@@ -14,6 +14,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Blaster/Weapon/Weapon.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
 
@@ -43,6 +44,8 @@ ABlasterCharacter::ABlasterCharacter()
 	Combat->SetIsReplicated(true); // Components don't need to be registered in GetLifeTimeReplicatedProps
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
