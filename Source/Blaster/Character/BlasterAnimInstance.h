@@ -48,5 +48,14 @@ private:
 	FRotator CharacterRotationLastFrame;
 	FRotator CharacterRotation;
 	FRotator DeltaRotation;
-	
+
+	// Aim offset
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
+	float AO_Yaw; // Note: the _ will be filtered out in Blueprints
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
+	float AO_Pitch; // Note: the _ will be filtered out in Blueprints
+
+	// To fix left hand from moving away from the gun
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
+	FTransform LeftHandTransform;
 };
