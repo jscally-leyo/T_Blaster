@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class ACasing;
 class UWidgetComponent;
 class USphereComponent;
 class UAnimationAsset;
@@ -31,7 +32,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -72,6 +73,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	UAnimationAsset* FireAnimation;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ACasing> CasingClass;
 
 public:
 	FORCEINLINE USphereComponent* GetAreaSphere() const {return AreaSphere;}
