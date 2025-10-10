@@ -17,6 +17,15 @@ UCombatComponent::UCombatComponent()
 	AimWalkSpeed = 400.f;
 }
 
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
+	// Adding it here means that when it changes, the change will be reflected from the server to all clients
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
+}
+
 void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -30,15 +39,6 @@ void UCombatComponent::BeginPlay()
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
-	// Adding it here means that when it changes, the change will be reflected from the server to all clients
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
-	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -82,6 +82,31 @@ void UCombatComponent::OnRep_EquippedWeapon()
 	{
 		Character->GetCharacterMovement()->bOrientRotationToMovement = false;
 		Character->bUseControllerRotationYaw = true;
+	}
+}
+
+void UCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+
+	if (bFireButtonPressed)
+	{
+		ServerFire(); // this has UFUNCTION(Server, ...) so will always be called on the server, doesn't matter which character (server, client 1, client 2, ...) triggers the call
+	}
+}
+
+void UCombatComponent::ServerFire_Implementation()
+{
+	MulticastFire(); // this has UFUNCTION(NetMultiCast, ...) so will always be called on the server AND on all clients --> so the combo ServerFire() + this one is perfect for multiplayer
+}
+
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (EquippedWeapon == nullptr) return;
+	if (Character)
+	{
+		Character->PlayFireMontage(bAiming);
+		EquippedWeapon->Fire();
 	}
 }
 

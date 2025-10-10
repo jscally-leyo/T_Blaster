@@ -33,6 +33,8 @@ public:
 	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+
+	void PlayFireMontage(bool bAiming);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -61,6 +63,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> AimAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
 	
 	// Input Functions
 	void Move(const FInputActionValue& Value);
@@ -70,7 +75,9 @@ protected:
 	void AimButtonPressed(const FInputActionValue& Value);
 	void AimButtonReleased(const FInputActionValue& Value);
 	virtual void Jump() override;
-
+	void FireButtonPressed();
+	void FireButtonReleased();
+	
 	// Input variables
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	int CursorSpeed;
@@ -113,6 +120,11 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UAnimMontage* FireWeaponMontage;
+
+	
+	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
