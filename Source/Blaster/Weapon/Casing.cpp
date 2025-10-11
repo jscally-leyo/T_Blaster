@@ -23,6 +23,7 @@ void ACasing::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// When the casing is spawned, we can add some random impulse to it
 	FVector RandomShell = UKismetMathLibrary::RandomUnitVectorInConeInDegrees(GetActorForwardVector(), 20.f);
 	CasingMesh->OnComponentHit.AddDynamic(this, &ACasing::OnHit);
 	CasingMesh->AddImpulse(RandomShell * ShellEjectionImpulse);
