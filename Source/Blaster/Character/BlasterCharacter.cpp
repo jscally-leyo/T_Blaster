@@ -16,9 +16,9 @@
 #include "Net/UnrealNetwork.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
-#include "Kismet/KismetMathLibrary.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -262,12 +262,11 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 
 void ABlasterCharacter::Look(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
 	if (PC != nullptr)
 	{
-		AddControllerYawInput(LookAxisVector.X * CursorSpeed);
+		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		AddControllerPitchInput(LookAxisVector.Y * CursorSpeed);
+		AddControllerYawInput(LookAxisVector.X * CursorSpeed);
 	}
 	else
 	{
