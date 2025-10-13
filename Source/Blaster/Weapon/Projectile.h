@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Blaster/Blaster.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
