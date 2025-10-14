@@ -251,15 +251,18 @@ void UCombatComponent::ServerSetAiming_Implementation(bool bIsAiming)
 
 void UCombatComponent::FireButtonPressed(bool bPressed)
 {
-	bFireButtonPressed = bPressed;
-
-	if (bFireButtonPressed)
+	if (EquippedWeapon)
 	{
-		/*
-		FHitResult HitResult;
-		TraceUnderCrosshairs(HitResult);
-		*/
-		Fire();
+		bFireButtonPressed = bPressed;
+
+		if (bFireButtonPressed)
+		{
+			/*
+			FHitResult HitResult;
+			TraceUnderCrosshairs(HitResult);
+			*/
+			Fire();
+		}
 	}
 }
 

@@ -85,8 +85,8 @@ void ABlasterCharacter::BeginPlay()
 	//BlasterHelperDebug::Print(TEXT("Session started, godspeed!")); // This comes from the namespace BlasterHelperDebug in BlasterHelperDebug.h
 
 	// Initialize controller
-	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
-
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	
 	// Add the input mapping context to the player
 	if (BlasterPlayerController)
 	{
@@ -96,10 +96,11 @@ void ABlasterCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
-	if (BlasterPlayerController)
+	
+	UpdateHUDHealth();
+	if (HasAuthority())
 	{
-		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
 	}
 }
 
@@ -260,6 +261,23 @@ void ABlasterCharacter::PlayHitReactMontage()
 	}
 }
 
+void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void ABlasterCharacter::UpdateHUDHealth()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
 void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
@@ -361,11 +379,6 @@ void ABlasterCharacter::Jump()
 	}
 }
 
-void ABlasterCharacter::MultiCastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void ABlasterCharacter::FireButtonPressed()
 {
 	if (Combat)
@@ -407,7 +420,8 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 
 void ABlasterCharacter::OnRep_Health()
 {
-	
+	UpdateHUDHealth();
+	PlayHitReactMontage();
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)

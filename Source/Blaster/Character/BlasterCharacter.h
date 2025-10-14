@@ -37,9 +37,6 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming);
-
-	UFUNCTION(NetMulticast, Unreliable) // It's a cometic feature, not important enough to set to Reliable
-	void MultiCastHit();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -88,6 +85,11 @@ protected:
 	int CursorSpeed;
 
 	void PlayHitReactMontage();
+
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser);
+
+	void UpdateHUDHealth();
 
 private:
 	UPROPERTY(VisibleAnywhere, Category="Camera")
