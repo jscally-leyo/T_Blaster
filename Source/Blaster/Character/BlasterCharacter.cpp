@@ -16,6 +16,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Blaster/Blaster.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
 
@@ -73,6 +74,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 	// Register stuff that needs to be replicated - also check UPROPERTY of these in the header file
 	DOREPLIFETIME_CONDITION(ABlasterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABlasterCharacter, Health);
 }
 
 void ABlasterCharacter::BeginPlay()
@@ -83,16 +85,21 @@ void ABlasterCharacter::BeginPlay()
 	//BlasterHelperDebug::Print(TEXT("Session started, godspeed!")); // This comes from the namespace BlasterHelperDebug in BlasterHelperDebug.h
 
 	// Initialize controller
-	PC = Cast<APlayerController>(Controller);
+	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
 
 	// Add the input mapping context to the player
-	if (PC)
+	if (BlasterPlayerController)
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+	}
+
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
 
@@ -257,7 +264,7 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	if (PC != nullptr)
+	if (BlasterPlayerController != nullptr)
 	{
 		const FRotator YawRotation(0, Controller->GetControlRotation().Yaw, 0);
 
@@ -277,7 +284,7 @@ void ABlasterCharacter::Move(const FInputActionValue& Value)
 
 void ABlasterCharacter::Look(const FInputActionValue& Value)
 {
-	if (PC != nullptr)
+	if (BlasterPlayerController != nullptr)
 	{
 		FVector2D LookAxisVector = Value.Get<FVector2D>();
 		AddControllerPitchInput(LookAxisVector.Y * CursorSpeed);
@@ -396,6 +403,11 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
+}
+
+void ABlasterCharacter::OnRep_Health()
+{
+	
 }
 
 void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
