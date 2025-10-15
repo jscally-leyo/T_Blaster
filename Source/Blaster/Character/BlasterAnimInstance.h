@@ -69,4 +69,7 @@ private:
 	// To fix right hand to point the gun at the crosshair target
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
 	FRotator RightHandRotation;
+
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta = (AllowPrivateAccess = "true"))
+	bool bElimmed;
 };
