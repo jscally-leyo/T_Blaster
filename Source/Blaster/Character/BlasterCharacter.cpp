@@ -82,13 +82,6 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ABlasterCharacter, Health);
 }
 
-void ABlasterCharacter::Destroyed()
-{
-	Super::Destroyed();
-
-	// Destroy the elim bot here, I skipped that (Lecture 107)
-}
-
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -119,13 +112,16 @@ void ABlasterCharacter::BeginPlay()
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// Only doing this here because after respawning, the server didn't seem to have a controller assigned properly
-	// Not sure if this is an expensive line to do in the "Tick" function --> to be investigated
-	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-
+	
 	AimOffset(DeltaTime);
 	HideCameraIfCharacterClose();
+}
+
+void ABlasterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	// Destroy the elim bot here, I skipped that (Lecture 107)
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)
