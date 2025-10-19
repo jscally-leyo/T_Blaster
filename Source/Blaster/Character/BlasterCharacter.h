@@ -9,6 +9,7 @@
 #include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class ABlasterPlayerState;
 class UTimelineComponent;
 class ABlasterPlayerController;
 class UCombatComponent;
@@ -102,6 +103,9 @@ protected:
 
 	void UpdateHUDHealth();
 
+	// IMPORTANT: we are going to use this to poll for any relevant classes in Tick(), and initialize the HUD (among other things)
+	void PollInit();
+
 private:
 	UPROPERTY(VisibleAnywhere, Category="Camera")
 	USpringArmComponent* CameraBoom;
@@ -171,6 +175,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
 
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
 	ABlasterPlayerController* BlasterPlayerController;
 
 	/**
@@ -196,6 +201,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Elim")
 	UMaterialInstance* DissolveMaterialInstance;
 
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
+	ABlasterPlayerState* BlasterPlayerState;	
+	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

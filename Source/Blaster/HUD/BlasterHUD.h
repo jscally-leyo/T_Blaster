@@ -34,7 +34,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	TSubclassOf<UUserWidget> CharacterOverlayClass;
-	
+
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
 	UCharacterOverlay* CharacterOverlay;
 
 protected:

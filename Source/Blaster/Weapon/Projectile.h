@@ -42,6 +42,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Tracer;
 
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
 	UParticleSystemComponent* TracerComponent;
 
 	UPROPERTY(EditAnywhere)

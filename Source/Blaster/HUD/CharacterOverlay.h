@@ -19,4 +19,8 @@ public:
 	UProgressBar* HealthBar; // Name must be the exact same in the WBP
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HealthText; // Name must be the exact same in the WBP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ScoreAmount; // Name must be the exact same in the WBP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DefeatsAmount; // Name must be the exact same in the WBP
 };

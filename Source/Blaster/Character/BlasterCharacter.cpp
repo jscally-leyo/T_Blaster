@@ -18,6 +18,7 @@
 #include "Blaster/Blaster.h"
 #include "Blaster/Gamemode/BlasterGameMode.h"
 #include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Blaster/PlayerState/BlasterPlayerState.h"
 
 #include "Blaster/Helper/BlasterHelperDebug.h"
 
@@ -112,6 +113,9 @@ void ABlasterCharacter::BeginPlay()
 void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Important to make sure everything is in place after a couple of frames
+	PollInit();
 	
 	AimOffset(DeltaTime);
 	HideCameraIfCharacterClose();
@@ -364,6 +368,20 @@ void ABlasterCharacter::UpdateHUDHealth()
 	if (BlasterPlayerController)
 	{
 		BlasterPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ABlasterCharacter::PollInit()
+{
+	// Some / most of these variables will stay null for the first couple of frames, that's why we retry this every tick
+	if (BlasterPlayerState == nullptr)
+	{
+		BlasterPlayerState = GetPlayerState<ABlasterPlayerState>();
+		if (BlasterPlayerState)
+		{
+			BlasterPlayerState->AddToScore(0.f); // This doesn't "add" anything, it just trigger updating the HUD, which is all we really want here
+			BlasterPlayerState->AddToDefeats(0); // This doesn't "add" anything, it just trigger updating the HUD, which is all we really want here
+		}
 	}
 }
 
