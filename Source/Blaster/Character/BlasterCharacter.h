@@ -6,8 +6,10 @@
 #include "Blaster/BlasterTypes/TurningInPlace.h"
 #include "GameFramework/Character.h"
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
+#include "Components/TimelineComponent.h"
 #include "BlasterCharacter.generated.h"
 
+class UTimelineComponent;
 class ABlasterPlayerController;
 class UCombatComponent;
 class AWeapon;
@@ -43,6 +45,9 @@ public:
 	
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
+	
+	// We can override Destroyed to "replicate" impact effects and sound, since this function is automatically multicast and executed on all clients!
+	virtual void Destroyed() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -167,7 +172,30 @@ private:
 	float ElimDelay = 3.f;
 
 	ABlasterPlayerController* BlasterPlayerController;
+
+	/**
+	* Dissolve Effect
+	*/
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeLine;
 	
+	FOnTimelineFloat DissolveTrack;
+	
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+	
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance
+	UPROPERTY(EditAnywhere, Category = "Elim")
+	UMaterialInstance* DissolveMaterialInstance;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();

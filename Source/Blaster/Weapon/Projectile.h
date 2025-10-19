@@ -19,7 +19,7 @@ class BLASTER_API AProjectile : public AActor
 public:
 	AProjectile();
 	virtual void Tick(float DeltaTime) override;
-	// We can override destroy to "replicate" impact effects and sound, since this function is automatically multicast and executed on all clients!
+	// We can override Destroyed to "replicate" impact effects and sound, since this function is automatically multicast and executed on all clients!
 	virtual void Destroyed() override;
 	
 protected:
