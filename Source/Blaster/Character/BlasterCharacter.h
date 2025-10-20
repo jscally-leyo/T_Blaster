@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Blaster/Interfaces/InteractWithCrosshairsInterface.h"
 #include "Components/TimelineComponent.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
 class ABlasterPlayerState;
@@ -40,8 +41,8 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 	void PlayElimMontage();
-
 	void Elim();
 	
 	UFUNCTION(NetMulticast, Reliable)
@@ -80,6 +81,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> FireAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> ReloadAction;
 	
 	// Input Functions
 	void Move(const FInputActionValue& Value);
@@ -91,6 +95,7 @@ protected:
 	virtual void Jump() override;
 	void FireButtonPressed();
 	void FireButtonReleased();
+	void ReloadButtonPressed();
 	
 	// Input variables
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -122,7 +127,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleDefaultsOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UCombatComponent* Combat;
 	
 	// RPC functions are one-way calls, called on the client to 'request' something from the server, or vice versa
@@ -141,8 +146,15 @@ private:
 	ETurningInPlace TurningInPlace;
 	void TurnInPlace(float DeltaTime);
 
+	/**
+	* Animation Montages
+	*/
+
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	UAnimMontage* ReloadMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	UAnimMontage* HitReactMontage;
@@ -218,6 +230,7 @@ public:
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
-	FORCEINLINE void SetBlasterPlayerController(ABlasterPlayerController* InController) { BlasterPlayerController = InController; } 
+	FORCEINLINE void SetBlasterPlayerController(ABlasterPlayerController* InController) { BlasterPlayerController = InController; }
+	ECombatState GetCombatState() const; 
 };
 

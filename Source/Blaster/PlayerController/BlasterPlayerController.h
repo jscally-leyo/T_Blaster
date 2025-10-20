@@ -17,6 +17,9 @@ public:
 	void SetHUDHealth(float Health, float MaxHealth);
 	void SetHUDScore(float Score); // Float because the built-in Score variable on the Player State is a float as well
 	void SetHUDDefeats(int32 Defeats); // There is not Defeats variable on the Player State, so we might as well take an integer here
+	void SetHUDWeaponAmmo(int32 Ammo); 
+	void SetHUDCarriedAmmo(int32 Ammo); 
+	
 	virtual void OnPossess(APawn* InPawn) override;
 	
 protected:

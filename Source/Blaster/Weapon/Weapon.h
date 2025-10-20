@@ -4,13 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponTypes.h"
 #include "Weapon.generated.h"
 
+class ABlasterPlayerController;
+class ABlasterCharacter;
 class ACasing;
 class UWidgetComponent;
 class USphereComponent;
 class UAnimationAsset;
 class UTexture2D;
+class USoundCue;
 
 UENUM(BlueprintType)
 enum class EWeaponState : uint8
@@ -31,10 +35,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void OnRep_Owner() override;
+	void SetHUDAmmo();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
 	void Dropped();
+	void AddAmmo(int32 AmmoToAdd);
 
 	// Textures for the weapon crosshairs
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
@@ -60,6 +67,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float FireDelay = 0.15f;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* EquipSound;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -89,7 +99,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	USphereComponent* AreaSphere; // Overlap events are only generated on the server (always? or just here because we did something that defines this, which I forgot?)
 	
-	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties") // See next function
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties") // See next function for OnRep_
 	EWeaponState WeaponState;
 
 	UFUNCTION()
@@ -111,10 +121,33 @@ private:
 	UPROPERTY(EditAnywhere)
 	float ZoomInterpSpeed = 20.f;
 
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo) // See next function for OnRep_
+	int32 Ammo;
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
+	void SpendRound();
+	
+	UPROPERTY(EditAnywhere)
+	int32 MagCapacity;
+	
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
+	ABlasterCharacter* BlasterOwnerCharacter; 
+	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
+	ABlasterPlayerController* BlasterOwnerController;
+
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
+	
 public:
 	FORCEINLINE USphereComponent* GetAreaSphere() const {return AreaSphere;}
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const {return WeaponMesh;}
 	FORCEINLINE float GetZoomedFOV() const {return ZoomedFOV;}
 	FORCEINLINE float GetZoomInterpSpeed() const {return ZoomInterpSpeed;}
+	bool IsEmpty();
+	FORCEINLINE EWeaponType GetWeaponType() const {return WeaponType;}
+	FORCEINLINE int32 GetAmmo() const {return Ammo;}
+	FORCEINLINE int32 GetMagCapacity() const {return MagCapacity;}
 };
 

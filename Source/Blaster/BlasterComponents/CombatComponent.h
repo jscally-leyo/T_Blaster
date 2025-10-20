@@ -5,9 +5,11 @@
 #include "CoreMinimal.h"
 #include "Blaster/HUD/BlasterHUD.h" // Not too bad to include this here, since it's not a big class
 #include "Components/ActorComponent.h"
+#include "Blaster/Weapon/WeaponTypes.h"
+#include "Blaster/BlasterTypes/CombatState.h"
 #include "CombatComponent.generated.h"
 
-#define TRACE_LENGTH 80000
+#define TRACE_LENGTH 80000.f
 
 class ABlasterHUD;
 class ABlasterPlayerController;
@@ -28,6 +30,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	void EquipWeapon(AWeapon* WeaponToEquip);
+	void Reload();
+	
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -51,6 +57,13 @@ protected:
 	void TraceUnderCrosshairs(FHitResult& TraceHitResult);
 
 	void SetHUDCrosshairs(float DeltaTime);
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
+
+	void HandleReload();
+
+	int32 AmountToReload();
 
 private:
 	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
@@ -109,6 +122,30 @@ private:
 	bool bCanFire = true;
 	void StartFireTimer();
 	void FireTimerFinished();
+
+	bool CanFire();
+
+	// Carried ammo for the currently equipped weapon
+	UPROPERTY(ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+	
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	TMap<EWeaponType, int32> CarriedAmmoMap; // TMap type can NOT be replicated in Unreal Engine
+
+	UPROPERTY(EditAnywhere)
+	int32 StartingARAmmo = 30;
+	
+	void InitializeCarriedAmmo();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_UnOccupied;
+
+	UFUNCTION()
+	void OnRep_CombatState();
+
+	void UpdateAmmoValues();
 	
 public:
 	

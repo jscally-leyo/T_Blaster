@@ -23,4 +23,8 @@ public:
 	UTextBlock* ScoreAmount; // Name must be the exact same in the WBP
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* DefeatsAmount; // Name must be the exact same in the WBP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* WeaponAmmoAmount; // Name must be the exact same in the WBP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CarriedAmmoAmount; // Name must be the exact same in the WBP
 };
