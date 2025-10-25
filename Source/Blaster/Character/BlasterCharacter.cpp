@@ -84,6 +84,20 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ABlasterCharacter, Health);
 }
 
+void ABlasterCharacter::SetEnhancedInput()
+{
+	// Add the input mapping context to the player
+	if (BlasterPlayerController)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+			bIsEnhancedInputSet = true;
+		}
+	}
+}
+
 void ABlasterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -93,15 +107,10 @@ void ABlasterCharacter::BeginPlay()
 
 	// Initialize controller
 	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
-	
-	// Add the input mapping context to the player
-	if (BlasterPlayerController)
+
+	if (!bIsEnhancedInputSet)
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(BlasterPlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
+		SetEnhancedInput();
 	}
 	
 	UpdateHUDHealth();
@@ -115,6 +124,13 @@ void ABlasterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Ideally this is not needed in the Tick(), but noticed some scenarios where input was not set after (re)spawning
+	//    probably because controller isn't set at that point, e.g. after GameMode.StartMatch()
+	if (!bIsEnhancedInputSet)
+	{
+		SetEnhancedInput();
+	}
+
 	// Important to make sure everything is in place after a couple of frames
 	PollInit();
 	
@@ -127,6 +143,16 @@ void ABlasterCharacter::Destroyed()
 	Super::Destroyed();
 
 	// Destroy the elim bot here, I skipped that (Lecture 107)
+}
+
+void ABlasterCharacter::Restart()
+{
+	Super::Restart();
+
+	if (!bIsEnhancedInputSet)
+	{
+		SetEnhancedInput();
+	}
 }
 
 void ABlasterCharacter::AimOffset(float DeltaTime)

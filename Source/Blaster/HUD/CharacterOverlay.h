@@ -27,4 +27,6 @@ public:
 	UTextBlock* WeaponAmmoAmount; // Name must be the exact same in the WBP
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CarriedAmmoAmount; // Name must be the exact same in the WBP
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MatchCountdownText; // Name must be the exact same in the WBP
 };

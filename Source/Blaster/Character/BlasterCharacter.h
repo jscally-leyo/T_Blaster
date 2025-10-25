@@ -38,6 +38,7 @@ public:
 	
 	// IMPORTANT so that we can decide what has to be replicated
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	void SetEnhancedInput();
 	virtual void PostInitializeComponents() override;
 
 	void PlayFireMontage(bool bAiming);
@@ -50,6 +51,8 @@ public:
 	
 	// We can override Destroyed to "replicate" impact effects and sound, since this function is automatically multicast and executed on all clients!
 	virtual void Destroyed() override;
+
+	virtual void Restart() override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -214,7 +217,9 @@ private:
 	UMaterialInstance* DissolveMaterialInstance;
 
 	UPROPERTY() // It's always good to add this UPROPERTY() macro because then the variable is automatically initialized as a nullptr
-	ABlasterPlayerState* BlasterPlayerState;	
+	ABlasterPlayerState* BlasterPlayerState;
+
+	bool bIsEnhancedInputSet = false;
 	
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
